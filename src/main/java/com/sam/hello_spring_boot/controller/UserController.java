@@ -4,6 +4,7 @@ import com.sam.hello_spring_boot.dto.request.UserCreationRequest;
 import com.sam.hello_spring_boot.dto.request.UserUpdateRequest;
 import com.sam.hello_spring_boot.entity.User;
 import com.sam.hello_spring_boot.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +17,7 @@ public class UserController {
     private UserService userService; //Controller chi dc goi xuong service
 
     @PostMapping
-    User createUser(@RequestBody UserCreationRequest request){
+    User createUser(@RequestBody @Valid UserCreationRequest request){
         //De map data tu request vao object
         return userService.createUser(request);
     }
