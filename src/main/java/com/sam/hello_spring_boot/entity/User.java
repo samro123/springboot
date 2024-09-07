@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @Entity
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)  //sinh ra cac id ngau nhien va k trung lap
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
     private String username;
     private String password;

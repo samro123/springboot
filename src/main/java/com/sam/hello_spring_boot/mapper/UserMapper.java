@@ -10,10 +10,7 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface UserMapper {
     User toUser(UserCreationRequest request);
-
-    //@Mapping(source = "lastName", target = "firstName")  // 2 doi tuong UserResponse and User k co cung properties(firstName:lastName)
-    //@Mapping(target = "firstName", ignore = true) // firstName:null
     UserResponse toUserResponse(User user);
+    void updateUser(@MappingTarget User user, UserUpdateRequest request);
 
-    void updateUser(@MappingTarget User user, UserUpdateRequest request); // Map Data tu request vao trong object user
 }
