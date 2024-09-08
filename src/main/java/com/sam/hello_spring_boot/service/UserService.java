@@ -11,6 +11,8 @@ import com.sam.hello_spring_boot.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
@@ -30,6 +32,10 @@ public class UserService {
         if(userRepository.existsByUsername(request.getUsername()))
             throw new AppException(ErrorCode.USER_ENUM); // Kiem tra user co ton tai hay k
         User user = userMapper.toUser(request); //map request vao user
+
+        //ma hoa password
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         return userRepository.save(user);
     }
