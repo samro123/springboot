@@ -72,7 +72,7 @@ public class AuthenticationService {
 
         return AuthenticationResponse.builder()
                 .token(token)
-                .idAuthentication(true)
+                .authentication(true)
                 .build();
 
     }
