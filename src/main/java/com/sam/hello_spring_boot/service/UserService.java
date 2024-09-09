@@ -4,6 +4,7 @@ import com.sam.hello_spring_boot.dto.request.UserCreationRequest;
 import com.sam.hello_spring_boot.dto.request.UserUpdateRequest;
 import com.sam.hello_spring_boot.dto.response.UserResponse;
 import com.sam.hello_spring_boot.entity.User;
+import com.sam.hello_spring_boot.enums.Role;
 import com.sam.hello_spring_boot.exception.AppException;
 import com.sam.hello_spring_boot.exception.ErrorCode;
 import com.sam.hello_spring_boot.mapper.UserMapper;
@@ -16,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -26,6 +28,8 @@ public class UserService {
 
      UserMapper userMapper; //
 
+     PasswordEncoder passwordEncoder;
+
     public User createUser(UserCreationRequest request){
 
 
@@ -34,8 +38,12 @@ public class UserService {
         User user = userMapper.toUser(request); //map request vao user
 
         //ma hoa password
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        HashSet<String> roles = new HashSet<>();
+        roles.add(Role.USER.name());
+
+        user.setRoles(roles);
 
         return userRepository.save(user);
     }
@@ -51,8 +59,9 @@ public class UserService {
         userRepository.deleteById(userId);
     }
 
-    public List<User> getUsers(){
-        return userRepository.findAll();
+    public List<UserResponse> getUsers(){
+        return userRepository.findAll().stream()
+                .map(userMapper::toUserResponse).toList();
     }
 
     //lay ra 1 user
