@@ -52,6 +52,7 @@ public class SecurityConfig {
         return  httpSecurity.build();
     }
 
+    //scope -> role (SCOPE_ADMIN -> ROLE_ADMIN)
     @Bean
     JwtAuthenticationConverter jwtAuthenticationConverter(){
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
