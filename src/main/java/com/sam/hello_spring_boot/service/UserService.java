@@ -12,6 +12,10 @@ import com.sam.hello_spring_boot.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,6 +27,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor // thay cho autowired
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true) // cac bien k khai bao thi mac dinh private final
+@Slf4j
 public class UserService {
      UserRepository userRepository; //cac Service chi dc goi xuong Repository
 
@@ -59,12 +64,26 @@ public class UserService {
         userRepository.deleteById(userId);
     }
 
+    public UserResponse getMyInfo(){
+        var context = SecurityContextHolder.getContext();
+        String name = context.getAuthentication().getName();
+        User user = userRepository.findByUsername(name).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
+        return userMapper.toUserResponse(user);
+
+    }
+
+
+    @PreAuthorize("hasRole('ADMIN')") // Kiem tra truoc luc goi ham co Role Admin
     public List<UserResponse> getUsers(){
+        log.info("In method get Users");
         return userRepository.findAll().stream()
                 .map(userMapper::toUserResponse).toList();
     }
 
     //lay ra 1 user
+    //returnObject.username la UserResponse username
+    // id cua username co trung vs username authentication , user chi lay thong tin chinh minh ma thoi
+    @PostAuthorize("returnObject.username == authentication.name") //
     public UserResponse getUser(String id){
         return  userMapper.toUserResponse(userRepository.findById(id)
                 .orElseThrow(()-> new RuntimeException("User not Found")));
