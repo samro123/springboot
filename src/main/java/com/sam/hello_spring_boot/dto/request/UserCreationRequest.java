@@ -1,5 +1,6 @@
 package com.sam.hello_spring_boot.dto.request;
 
+import com.sam.hello_spring_boot.validator.DobConstraint;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -19,6 +20,7 @@ public class UserCreationRequest {
     String password;
     String firstName;
     String lastName;
+    @DobConstraint(min = 18,message = "INVALID_DOB")
     LocalDate dob;
 
 }
