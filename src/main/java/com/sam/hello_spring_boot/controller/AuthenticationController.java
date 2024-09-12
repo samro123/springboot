@@ -1,10 +1,7 @@
 package com.sam.hello_spring_boot.controller;
 
 import com.nimbusds.jose.JOSEException;
-import com.sam.hello_spring_boot.dto.request.ApiResponse;
-import com.sam.hello_spring_boot.dto.request.AuthenticationRequest;
-import com.sam.hello_spring_boot.dto.request.IntrospectRequest;
-import com.sam.hello_spring_boot.dto.request.LogoutRequest;
+import com.sam.hello_spring_boot.dto.request.*;
 import com.sam.hello_spring_boot.dto.response.AuthenticationResponse;
 import com.sam.hello_spring_boot.dto.response.IntrospectResponse;
 import com.sam.hello_spring_boot.service.AuthenticationService;
@@ -38,6 +35,16 @@ public class AuthenticationController {
             throws ParseException, JOSEException {
         var result = authenticationService.introspect(request);
         return  ApiResponse.<IntrospectResponse>builder()
+                .code(1000)
+                .result(result)
+                .build();
+    }
+
+    @PostMapping("/refresh")
+    ApiResponse<AuthenticationResponse> authenticate(@RequestBody RefreshRequest request)
+            throws ParseException, JOSEException{
+        var result = authenticationService.refreshToken(request);
+        return ApiResponse.<AuthenticationResponse>builder()
                 .code(1000)
                 .result(result)
                 .build();

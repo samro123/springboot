@@ -8,6 +8,7 @@ import com.nimbusds.jwt.SignedJWT;
 import com.sam.hello_spring_boot.dto.request.AuthenticationRequest;
 import com.sam.hello_spring_boot.dto.request.IntrospectRequest;
 import com.sam.hello_spring_boot.dto.request.LogoutRequest;
+import com.sam.hello_spring_boot.dto.request.RefreshRequest;
 import com.sam.hello_spring_boot.dto.response.AuthenticationResponse;
 import com.sam.hello_spring_boot.dto.response.IntrospectResponse;
 import com.sam.hello_spring_boot.entity.InvalidatedToken;
@@ -42,7 +43,7 @@ import java.util.UUID;
 public class AuthenticationService {
     private static final Logger log = LoggerFactory.getLogger(AuthenticationService.class);
     UserRepository userRepository;
-    InvalidatedRepository invalidatedRepository;
+    InvalidatedRepository invalidatedTokenRepository;
 
     @NonFinal // k inject vao constructor
     @Value("${jwt.signerKey}")
@@ -95,7 +96,32 @@ public class AuthenticationService {
                 .expiryTime(expiryTime)
                 .build();
 
-        invalidatedRepository.save(invalidatedToken);
+        invalidatedTokenRepository.save(invalidatedToken);
+    }
+
+    public AuthenticationResponse refreshToken(RefreshRequest request)
+            throws ParseException, JOSEException {
+        var signJWT = verifyToken(request.getToken());
+        var jit = signJWT.getJWTClaimsSet().getJWTID();
+        var expiryTime = signJWT.getJWTClaimsSet().getExpirationTime();
+        InvalidatedToken invalidatedToken = InvalidatedToken.builder()
+                .id(jit)
+                .expiryTime(expiryTime)
+                .build();
+
+        invalidatedTokenRepository.save(invalidatedToken);
+        var username = signJWT.getJWTClaimsSet().getSubject();
+
+        var user = userRepository.findByUsername(username).orElseThrow(
+                ()-> new AppException(ErrorCode.UNAUTHENTICATED)
+        );
+
+        var token = generateToken(user);
+
+        return AuthenticationResponse.builder()
+                .token(token)
+                .authentication(true)
+                .build();
     }
 
     private SignedJWT verifyToken(String token)throws JOSEException, ParseException{
@@ -107,7 +133,7 @@ public class AuthenticationService {
         if(!(verified && expiryTime.after(new Date())))
             throw new AppException(ErrorCode.UNAUTHENTICATED);
 
-        if(invalidatedRepository
+        if(invalidatedTokenRepository
                 .existsById(signedJWT.getJWTClaimsSet().getJWTID()))
             throw new AppException(ErrorCode.UNAUTHENTICATED);
 
