@@ -4,6 +4,7 @@ import com.nimbusds.jose.JOSEException;
 import com.sam.hello_spring_boot.dto.request.ApiResponse;
 import com.sam.hello_spring_boot.dto.request.AuthenticationRequest;
 import com.sam.hello_spring_boot.dto.request.IntrospectRequest;
+import com.sam.hello_spring_boot.dto.request.LogoutRequest;
 import com.sam.hello_spring_boot.dto.response.AuthenticationResponse;
 import com.sam.hello_spring_boot.dto.response.IntrospectResponse;
 import com.sam.hello_spring_boot.service.AuthenticationService;
@@ -39,6 +40,15 @@ public class AuthenticationController {
         return  ApiResponse.<IntrospectResponse>builder()
                 .code(1000)
                 .result(result)
+                .build();
+    }
+
+    @PostMapping("/logout")
+    ApiResponse<Void> logout(@RequestBody LogoutRequest request)
+            throws ParseException, JOSEException {
+        authenticationService.logout(request);
+        return  ApiResponse.<Void>builder()
+                .code(1000)
                 .build();
     }
 }
